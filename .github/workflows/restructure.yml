@@ -1,0 +1,29 @@
+name: Restructure project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move sources into module
+        run: |
+          set -e
+          mkdir -p app/src/main
+          [ -d java ] && git mv java app/src/main/java || echo "java/ уже перемещена"
+          [ -d res ]  && git mv res  app/src/main/res  || echo "res/ уже перемещена"
+          ls -R app/src/main | head -50
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: move sources into app/src/main"
+          git push
